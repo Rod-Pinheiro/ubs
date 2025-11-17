@@ -7,3 +7,18 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:password@db:5432/classificacao_risco
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=classificacao_risco
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
