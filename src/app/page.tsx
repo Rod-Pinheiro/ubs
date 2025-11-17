@@ -152,6 +152,15 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
+            <a
+              href="/admin"
+              className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+            >
+              Painel Admin
+            </a>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Sistema de Classificação de Risco Ambulatorial
           </h1>
