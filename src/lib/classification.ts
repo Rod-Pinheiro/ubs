@@ -91,7 +91,7 @@ export function calcularPontuacaoCrianca(crianca: CriancaData): number {
   return 0;
 }
 
-export function getClassificacaoFinal(pontuacao: number): {
+function getClassificacaoFinal(pontuacao: number, pontuacoes: { prenatal: number; crianca: number }): {
   categoria: 'URGÊNCIA' | 'ACESSO AVANÇADO' | 'CUIDADO CONTINUADO';
   descricao: string;
   acao: string;
@@ -103,15 +103,31 @@ export function getClassificacaoFinal(pontuacao: number): {
       acao: 'Encaminhar para triagem de urgência'
     };
   }
-  
-  if (pontuacao === 1 || pontuacao === 2) {
+
+  if (pontuacao === 2) {
     return {
       categoria: 'ACESSO AVANÇADO',
       descricao: 'Atendimento prioritário nas próximas horas',
       acao: 'Agendar consulta médica em até 24 horas'
     };
   }
-  
+
+  if (pontuacao === 1) {
+    if (pontuacoes.prenatal === 1 || pontuacoes.crianca === 1) {
+      return {
+        categoria: 'CUIDADO CONTINUADO',
+        descricao: 'Acompanhamento de rotina',
+        acao: 'Agendar consulta eletiva conforme disponibilidade'
+      };
+    } else {
+      return {
+        categoria: 'ACESSO AVANÇADO',
+        descricao: 'Atendimento prioritário nas próximas horas',
+        acao: 'Agendar consulta médica em até 24 horas'
+      };
+    }
+  }
+
   return {
     categoria: 'CUIDADO CONTINUADO',
     descricao: 'Acompanhamento de rotina',
@@ -137,7 +153,7 @@ export function calcularClassificacao(data: {
   };
 
   const pontuacaoFinal = Math.max(...Object.values(pontuacoes));
-  const classificacao = getClassificacaoFinal(pontuacaoFinal);
+  const classificacao = getClassificacaoFinal(pontuacaoFinal, { prenatal: pontuacoes.prenatal, crianca: pontuacoes.crianca });
 
   return {
     pontuacaoFinal,
