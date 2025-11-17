@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Classificação de Risco Ambulatorial
 
-## Getting Started
+Aplicação Next.js completa para classificação de risco ambulatorial baseada em regras de negócio específicas.
 
-First, run the development server:
+## 🚀 Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Formulário Dinâmico**: 6 categorias de sintomas com validação em tempo real
+- **Pontuação Automática**: Cálculo instantâneo de pontos por categoria
+- **Classificação Inteligente**: Usa o MAIOR valor entre todas as categorias
+- **Interface Visual**: Cores distintas para cada nível de risco
+- **API RESTful**: Endpoint `/api/classificar` para integração
+- **Design Responsivo**: Funciona em desktop e mobile
+
+## 🎯 Regras de Negócio Implementadas
+
+### Categorias de Pontuação
+1. **Dor** (0-3 pontos)
+2. **Exames/Renovação** (0-3 pontos)  
+3. **Sintomas Respiratórios** (0-3 pontos)
+4. **Estômago/Intestino** (0-3 pontos)
+5. **Pré-natal** (0-3 pontos)
+6. **Criança < 2 anos** (0-3 pontos)
+
+### Classificação Final
+- 🔴 **3 pontos** → URGÊNCIA
+- 🟡 **1-2 pontos** → ACESSO AVANÇADO  
+- 🟢 **1 ponto específico** → CUIDADO CONTINUADO
+
+## 🛠️ Tecnologias
+
+- **Next.js 16** com App Router
+- **TypeScript** para tipagem segura
+- **Tailwind CSS** para estilização
+- **React Hooks** para estado
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── app/
+│   ├── api/classificar/route.ts    # API backend
+│   ├── page.tsx                    # Página principal
+│   └── layout.tsx                  # Layout global
+├── components/
+│   ├── forms/                      # Formulários por categoria
+│   └── ResultCard.tsx              # Card de resultados
+└── lib/
+    ├── classification.ts           # Lógica de negócio
+    └── types.ts                    # Tipos TypeScript
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Como Executar
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Instalar dependências
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Iniciar desenvolvimento
+npm run dev
 
-## Learn More
+# Construir para produção
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Acesse `http://localhost:3000` para usar a aplicação.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📊 Exemplo de Uso da API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Request
+```json
+POST /api/classificar
+{
+  "dor": { "intensidade": 8, "temFebre": true, "sintomasGraves": false },
+  "exames": { "veioBem": false, "hipertensoDiabeticoReceitaAntiga": false, "alteracaoNaQueixa": true, "doencaGrave": false, "precisaPrioridade": false },
+  "respiratorio": { "tosseLeve": false, "temFebre": false, "temCatarro": false, "faltaAr": false, "chiado": false, "esforcoRespirar": false },
+  "estomago": { "enjooDiarreiaLeve": false, "dorForteConstante": false, "vomitosRepetidos": false, "sangue": false, "febreAlta": false },
+  "prenatal": { "tudoBem": false, "riscoModerado": false, "sinaisAlarme": false },
+  "crianca": { "menor2Anos": false, "rotinaSemSintomas": false, "sintomasLeves": false, "sintomasGraves": false }
+}
+```
 
-## Deploy on Vercel
+### Response
+```json
+{
+  "pontuacaoFinal": 2,
+  "categoria": "ACESSO AVANÇADO",
+  "descricao": "Atendimento prioritário nas próximas horas",
+  "acao": "Agendar consulta médica em até 24 horas",
+  "detalhes": {
+    "dor": 2,
+    "exames": 2,
+    "respiratorio": 0,
+    "estomago": 0,
+    "prenatal": 0,
+    "crianca": 0
+  }
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ✅ Testes Realizados
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- ✅ Build sem erros
+- ✅ API funcional com exemplos
+- ✅ Cálculo correto de pontuação
+- ✅ Classificação adequada (Urgência/Acesso Avançado)
+- ✅ Interface responsiva
+- ✅ Validação dinâmica funcionando
+
+## 🎨 Interface
+
+- **Vermelho**: Urgência (3 pontos)
+- **Amarelo**: Acesso Avançado (1-2 pontos)
+- **Verde**: Cuidado Continuado (1 ponto específico)
+- **Cinza**: Sem classificação
+
+O sistema está pronto para uso em ambiente de produção!
