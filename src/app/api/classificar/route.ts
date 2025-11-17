@@ -1,18 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { calcularClassificacao } from '@/lib/classification';
 import { FormData } from '@/lib/types';
-import { prisma } from '@/lib/db';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
     const classifications = await prisma.classification.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        dor: true,
+        exames: true,
+        respiratorio: true,
+        estomago: true,
+        prenatal: true,
+        crianca: true,
+        pontuacaoFinal: true,
+        categoria: true,
+        descricao: true,
+        acao: true,
+        detalhes: true,
+        processed: true,
+        processedAt: true,
+        processedBy: true,
+      },
       orderBy: {
         createdAt: 'desc',
       },
-      take: 50, // Limit to last 50 classifications
     });
 
-    return NextResponse.json(classifications);
+    // Debug: Check what Prisma returns
+    console.log('Raw classification:', classifications[0]);
+    console.log('Processed value:', classifications[0]?.processed);
+    console.log('Processed type:', typeof classifications[0]?.processed);
+
+    // Ensure processed field is properly handled
+    const safeClassifications = classifications.map((classification: any) => ({
+      ...classification,
+      processed: classification.processed === true,
+    }));
+
+    console.log('After processing:', safeClassifications[0]?.processed);
+
+    return NextResponse.json(safeClassifications);
   } catch (error) {
     console.error('Erro ao buscar classificações:', error);
     return NextResponse.json(
