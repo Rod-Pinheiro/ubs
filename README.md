@@ -64,6 +64,23 @@ npm run build
 
 Acesse `http://localhost:3000` para usar a aplicação.
 
+## 🐳 Docker Compose
+
+### Desenvolvimento
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+### Produção
+```bash
+docker compose up --build
+```
+
+Para parar os containers:
+```bash
+docker compose down
+```
+
 ## 📊 Exemplo de Uso da API
 
 ### Request
