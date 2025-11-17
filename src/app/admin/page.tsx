@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 interface ClassificationResult {
   id: string;
@@ -17,9 +17,16 @@ interface ClassificationResult {
   descricao: string;
   acao: string;
   detalhes: any;
+  processed: boolean;
+  processedAt?: string;
+  processedBy?: string;
 }
 
-function ResultCard({ result, isNew }: { result: ClassificationResult; isNew?: boolean }) {
+function ResultCard({ result, isNew, onToggleProcessed }: {
+  result: ClassificationResult;
+  isNew?: boolean;
+  onToggleProcessed: (id: string, processed: boolean) => void;
+}) {
   const getCategoryColor = (categoria: string) => {
     switch (categoria) {
       case 'URGÊNCIA':
@@ -37,15 +44,58 @@ function ResultCard({ result, isNew }: { result: ClassificationResult; isNew?: b
     return new Date(dateString).toLocaleString('pt-BR');
   };
 
+  const handleToggleProcessed = async () => {
+    try {
+      console.log('Tentando atualizar classificação:', result.id, 'para processed:', !result.processed);
+      const response = await fetch(`/api/classificar/${result.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          processed: !result.processed,
+          processedBy: 'admin', // In a real app, this would be the current user
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Resposta de erro:', response.status, errorText);
+        throw new Error(`Erro ao atualizar status: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Atualização bem-sucedida:', data);
+      onToggleProcessed(result.id, !result.processed);
+    } catch (error) {
+      console.error('Erro ao marcar como processado:', error);
+      alert(`Erro ao atualizar status: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    }
+  };
+
   return (
-    <div className={`bg-white rounded-lg shadow-md border p-6 hover:shadow-lg transition-all duration-500 ${isNew ? 'ring-2 ring-blue-400 shadow-lg' : ''}`}>
-      {isNew && (
-        <div className="mb-2">
+    <div className={`bg-white rounded-lg shadow-md border p-6 hover:shadow-lg transition-all duration-500 ${isNew ? 'ring-2 ring-blue-400 shadow-lg' : ''} ${result.processed ? 'opacity-75' : ''}`}>
+      <div className="flex justify-between items-start mb-2">
+        {isNew && (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             🆕 Novo
           </span>
-        </div>
-      )}
+        )}
+         <div className="flex items-center space-x-2 ml-auto">
+           <span className={`px-2 py-1 rounded-full text-xs font-medium ${result.processed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+             {result.processed ? '✅ Processado' : '⏳ Pendente'}
+           </span>
+           {!result.processed && (
+             <button
+               onClick={handleToggleProcessed}
+               className="px-3 py-1 rounded text-xs font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+             >
+               Marcar como Processado
+             </button>
+           )}
+         </div>
+      </div>
+
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
@@ -53,6 +103,11 @@ function ResultCard({ result, isNew }: { result: ClassificationResult; isNew?: b
           </h3>
           <p className="text-sm text-gray-500">
             {formatDate(result.createdAt)}
+            {result.processed && result.processedAt && (
+              <span className="ml-2 text-green-600">
+                • Processado em {formatDate(result.processedAt)}
+              </span>
+            )}
           </p>
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(result.categoria)}`}>
@@ -98,18 +153,43 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const [newEntries, setNewEntries] = useState<string[]>([]);
+  const [filter, setFilter] = useState<'all' | 'processed' | 'unprocessed'>('unprocessed');
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  useEffect(() => {
-    fetchResults();
-    setupSSE();
+  const filteredResults = useMemo(() => {
+    // Filter results based on selected filter
+    let filtered = results;
+    if (filter === 'processed') {
+      filtered = results.filter(result => result.processed);
+    } else if (filter === 'unprocessed') {
+      filtered = results.filter(result => !result.processed);
+    }
+    return filtered;
+  }, [results, filter]);
 
-    return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-    };
-  }, []);
+
+
+  const handleToggleProcessed = (id: string, processed: boolean) => {
+    if (processed) {
+      // Remove the processed item from the list
+      setResults(prevResults => prevResults.filter(result => result.id !== id));
+    } else {
+      // If unprocessing, update the item (though this might not be needed in ticket system)
+      setResults(prevResults =>
+        prevResults.map(result =>
+          result.id === id
+            ? {
+                ...result,
+                processed,
+                processedAt: undefined,
+                processedBy: undefined,
+                updatedAt: new Date().toISOString()
+              }
+            : result
+        )
+      );
+    }
+  };
 
   const fetchResults = async () => {
     try {
@@ -179,6 +259,11 @@ export default function AdminPage() {
     };
   };
 
+  useEffect(() => {
+    fetchResults();
+    setupSSE();
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -243,6 +328,7 @@ export default function AdminPage() {
               <p className="mt-2 text-gray-600">
                 Visualizar resultados das classificações de risco em tempo real
               </p>
+              TESTE
             </div>
             <div className={`text-sm font-medium ${getConnectionStatusColor()}`}>
               {getConnectionStatusText()}
@@ -250,28 +336,66 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="mb-6 flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            Total de classificações: {results.length}
-            {newEntries.length > 0 && (
-              <span className="ml-2 text-blue-600 font-medium">
-                (+{newEntries.length} novo{newEntries.length > 1 ? 's' : ''})
-              </span>
-            )}
+        <div className="mb-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              Total de classificações: {results.length}
+              {newEntries.length > 0 && (
+                <span className="ml-2 text-blue-600 font-medium">
+                  (+{newEntries.length} novo{newEntries.length > 1 ? 's' : ''})
+                </span>
+              )}
+            </div>
+            <button
+              onClick={fetchResults}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Atualizando...' : 'Atualizar Manual'}
+            </button>
           </div>
-          <button
-            onClick={fetchResults}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Atualizando...' : 'Atualizar Manual'}
-          </button>
+
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-700">Filtrar:</span>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  filter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Todas ({results.length})
+              </button>
+              <button
+                onClick={() => setFilter('unprocessed')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  filter === 'unprocessed'
+                    ? 'bg-yellow-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Pendentes ({results.filter(r => !r.processed).length})
+              </button>
+              <button
+                onClick={() => setFilter('processed')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  filter === 'processed'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Processadas ({results.filter(r => r.processed).length})
+              </button>
+            </div>
+          </div>
         </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
@@ -283,23 +407,27 @@ export default function AdminPage() {
           </div>
         )}
 
-        {results.length === 0 ? (
+        {filteredResults.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">📋</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Nenhuma classificação encontrada
+              {results.length === 0 ? 'Nenhuma classificação encontrada' : 'Nenhum resultado encontrado'}
             </h3>
             <p className="text-gray-500">
-              As classificações aparecerão aqui automaticamente quando forem realizadas.
+              {results.length === 0
+                ? 'As classificações aparecerão aqui automaticamente quando forem realizadas.'
+                : `Nenhuma classificação ${filter === 'processed' ? 'processada' : filter === 'unprocessed' ? 'pendente' : ''} encontrada.`
+              }
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {results.map((result) => (
+            {filteredResults.map((result) => (
               <ResultCard
                 key={result.id}
                 result={result}
                 isNew={newEntries.includes(result.id)}
+                onToggleProcessed={handleToggleProcessed}
               />
             ))}
           </div>

@@ -14,6 +14,9 @@ CREATE TABLE "classifications" (
     "descricao" TEXT NOT NULL,
     "acao" TEXT NOT NULL,
     "detalhes" JSONB NOT NULL,
+    "processed" BOOLEAN NOT NULL DEFAULT false,
+    "processedAt" TIMESTAMP(3),
+    "processedBy" TEXT,
 
     CONSTRAINT "classifications_pkey" PRIMARY KEY ("id")
 );

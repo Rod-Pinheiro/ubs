@@ -30,5 +30,10 @@ model Classification {
   acao           String
   detalhes       Json
 
+  // Admin status
+  processed  Boolean @default(false)
+  processedAt DateTime?
+  processedBy String?
+
   @@map("classifications")
 }
