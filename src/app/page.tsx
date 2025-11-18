@@ -225,14 +225,14 @@ export default function Home() {
         <form onSubmit={handleFormSubmit} className="space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-md transition-all duration-300 ease-in-out">
             <h2 className="text-xl font-semibold mb-4">{currentStepData.title}</h2>
-            {isReviewStep ? (
+            {currentStepData.isReview ? (
               <SummaryReview formData={formData} pontuacoes={pontuacoes} />
             ) : (
-              <CurrentFormComponent
-                data={formData[currentStepData.key as keyof FormData]}
-                onChange={(data: FormData[keyof FormData]) => setFormData({ ...formData, [currentStepData.key as keyof FormData]: data })}
-                pontuacao={pontuacoes[currentStepData.key as keyof FormData]}
-              />
+            <CurrentFormComponent
+              data={formData[currentStepData.key as keyof FormData]}
+              onChange={(data: any) => setFormData({ ...formData, [currentStepData.key]: data })}
+              pontuacao={pontuacoes[currentStepData.key as keyof FormData]}
+            />
             )}
           </div>
 
