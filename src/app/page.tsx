@@ -85,7 +85,7 @@ export default function Home() {
     crianca: 0
   });
 
-  const [_resultado, setResultado] = useState<ClassificationResult | null>(null);
+  const [resultado, setResultado] = useState<ClassificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -260,14 +260,16 @@ export default function Home() {
           </p>
         </header>
 
-        <ProgressBar
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          onStepClick={(step) => setCurrentStep(step)}
-          stepTitles={steps.map(step => step.title)}
-        />
+        {!resultado && (
+          <>
+            <ProgressBar
+              currentStep={currentStep}
+              totalSteps={steps.length}
+              onStepClick={(step) => setCurrentStep(step)}
+              stepTitles={steps.map(step => step.title)}
+            />
 
-        <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 space-y-6">
+            <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 space-y-6">
           <div className="bg-white p-6 rounded-lg shadow-md transition-all duration-300 ease-in-out flex-1">
             <h2 className="text-xl font-semibold mb-4">{currentStepData.title}</h2>
             {currentStepData.isReview ? (
@@ -313,6 +315,8 @@ export default function Home() {
             </div>
           </div>
         </form>
+        </>
+        )}
 
         {/* Reset Confirmation Modal */}
         {showResetConfirm && (
@@ -345,26 +349,29 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mt-8">
-          {/* <ResultCard resultado={resultado} loading={loading} /> */}
-          {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-red-800 font-medium">Erro</p>
-              </div>
-              <p className="text-red-700 mt-1">{error}</p>
-              <button
-                onClick={() => setError(null)}
-                className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
-              >
-                Fechar
-              </button>
+        {(resultado || loading) && (
+          <div className="mt-8">
+            <ResultCard resultado={resultado} loading={loading} onBack={handleReset} />
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-800 font-medium">Erro</p>
             </div>
-          )}
-        </div>
+            <p className="text-red-700 mt-1">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

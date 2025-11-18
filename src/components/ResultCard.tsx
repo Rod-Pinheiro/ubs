@@ -5,9 +5,10 @@ import { ClassificationResult } from '@/lib/types';
 interface ResultCardProps {
   resultado: ClassificationResult | null;
   loading: boolean;
+  onBack?: () => void;
 }
 
-export default function ResultCard({ resultado, loading }: ResultCardProps) {
+export default function ResultCard({ resultado, loading, onBack }: ResultCardProps) {
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-400">
@@ -142,6 +143,17 @@ export default function ResultCard({ resultado, loading }: ResultCardProps) {
           </div>
         </div>
       </div>
+
+      {onBack && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={onBack}
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          >
+            Voltar ao Início
+          </button>
+        </div>
+      )}
     </div>
   );
 }
