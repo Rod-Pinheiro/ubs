@@ -13,6 +13,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Make start.sh executable
+RUN chmod +x start.sh
+
 # Generate Prisma client
 RUN npx prisma generate
 
@@ -35,6 +38,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./
 
 # Switch to non-root user
 USER nextjs
@@ -47,4 +51,4 @@ ENV PORT=3000
 ENV NODE_ENV=production
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["./start.sh"]
