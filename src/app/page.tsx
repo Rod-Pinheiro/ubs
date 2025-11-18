@@ -84,7 +84,7 @@ export default function Home() {
     crianca: 0
   });
 
-  const [resultado, setResultado] = useState<ClassificationResult | null>(null);
+  const [_resultado, setResultado] = useState<ClassificationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -199,7 +199,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-8">
-          <div className="flex justify-center items-center mb-4">
+          <div className="absolute top-0 left-0 mb-4">
             <a
               href="/admin"
               className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"

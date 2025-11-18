@@ -65,13 +65,13 @@ export default function SummaryReview({ formData, pontuacoes }: SummaryReviewPro
   };
 
   return (
-    <div className="space-y-6 max-h-[70vh] flex flex-col">
-      <div className="text-center flex-shrink-0">
+    <div className="space-y-6 max-h-[70vh] grid grid-rows-[auto_1fr_auto]">
+      <div className="text-center shrink-0">
         <h3 className="text-xl font-semibold text-gray-800 mb-2">Revisão das Respostas</h3>
         <p className="text-gray-600">Confira suas respostas antes de classificar o risco</p>
       </div>
 
-      <div className="grid gap-4 overflow-y-auto flex-1">
+      <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1">
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex justify-between items-center mb-2">
             <h4 className="font-semibold text-gray-800">Dor</h4>
@@ -163,7 +163,7 @@ export default function SummaryReview({ formData, pontuacoes }: SummaryReviewPro
         </div>
       </div>
 
-      <div className="bg-blue-50 p-4 rounded-lg flex-shrink-0">
+      <div className="bg-blue-50 p-4 rounded-lg shrink-0">
         <h4 className="font-semibold text-blue-800 mb-2">Pontuação Total</h4>
         <p className="text-blue-600 text-lg font-bold">
           {Object.values(pontuacoes).reduce((sum, score) => sum + score, 0)} pontos
