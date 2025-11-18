@@ -37,6 +37,7 @@ const steps: Array<{
 ];
 
 export default function Home() {
+  const [hasStarted, setHasStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({
     dor: { intensidade: 0, temFebre: false, sintomasGraves: false },
@@ -130,6 +131,7 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    setHasStarted(false);
     setCurrentStep(0);
     setFormData({
       dor: { intensidade: 0, temFebre: false, sintomasGraves: false },
@@ -195,11 +197,54 @@ export default function Home() {
     }
   };
 
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <header className="text-center mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <div></div>
+              <a
+                href="/admin"
+                className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
+              >
+                Painel Admin
+              </a>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Sistema de Classificação de Risco Ambulatorial
+            </h1>
+            <p className="text-gray-600">
+              Avalie o nível de prioridade do atendimento médico
+            </p>
+          </header>
+
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+              Bem-vindo ao Sistema de Classificação
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Responda às perguntas abaixo para determinar a prioridade do atendimento.
+              O processo é rápido e guiado passo a passo.
+            </p>
+            <button
+              onClick={() => setHasStarted(true)}
+              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              Começar Avaliação
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-8">
-          <div className="absolute top-0 left-0 mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
             <a
               href="/admin"
               className="px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
