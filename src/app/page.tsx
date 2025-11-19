@@ -17,9 +17,11 @@ import RespiratorioForm from '@/components/forms/RespiratorioForm';
 import EstomagoForm from '@/components/forms/EstomagoForm';
 import PrenatalForm from '@/components/forms/PrenatalForm';
 import CriancaForm from '@/components/forms/CriancaForm';
-import ResultCard from '@/components/ResultCard';
-import ProgressBar from '@/components/ProgressBar';
 import SummaryReview from '@/components/SummaryReview';
+import WelcomeScreen from '@/components/WelcomeScreen';
+import FormWizard from '@/components/FormWizard';
+import ResetConfirmModal from '@/components/ResetConfirmModal';
+import ErrorAlert from '@/components/ErrorAlert';
 
 const steps: Array<{
   component: React.ComponentType<any>;
@@ -172,10 +174,6 @@ export default function Home() {
     setResultado(null);
   };
 
-  const currentStepData = steps[currentStep];
-  const CurrentFormComponent = currentStepData.component;
-  const isReviewStep = currentStepData.isReview;
-
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -188,191 +186,39 @@ export default function Home() {
     }
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isReviewStep) {
-      await handleSubmit(e);
-    } else {
-      handleNext();
-    }
-  };
-
   if (!hasStarted) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <header className="text-center mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <div></div>
-              <a
-                href="/admin"
-                className="fixed top-0 left-0 px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-              >
-                Painel Admin
-              </a>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Sistema de Classificação de Risco Ambulatorial
-            </h1>
-            <p className="text-gray-600">
-              Avalie o nível de prioridade do atendimento médico
-            </p>
-          </header>
-
-          <div className="bg-white p-8 rounded-lg shadow-md text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              Bem-vindo ao Sistema de Classificação
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Responda às perguntas abaixo para determinar a prioridade do atendimento.
-              O processo é rápido e guiado passo a passo.
-            </p>
-            <button
-              onClick={() => setHasStarted(true)}
-              className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
-              Começar Avaliação
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <WelcomeScreen onStart={() => setHasStarted(true)} />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 flex flex-col">
-      <div className="max-w-4xl mx-auto flex-1 flex flex-col">
-        <header className="text-center mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <div></div>
-            <a
-              href="/admin"
-              className="fixed top-0 left-0 px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition-colors"
-            >
-              Painel Admin
-            </a>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Sistema de Classificação de Risco Ambulatorial
-          </h1>
-          <p className="text-gray-600">
-            Preencha o formulário abaixo para avaliar o nível de prioridade do atendimento
-          </p>
-        </header>
-
-        {!resultado && (
-          <>
-            <ProgressBar
-              currentStep={currentStep}
-              totalSteps={steps.length}
-              onStepClick={(step) => setCurrentStep(step)}
-              stepTitles={steps.map(step => step.title)}
-            />
-
-            <form onSubmit={handleFormSubmit} className="flex flex-col flex-1 space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-md transition-all duration-300 ease-in-out flex-1">
-            <h2 className="text-xl font-semibold mb-4">{currentStepData.title}</h2>
-            {currentStepData.isReview ? (
-              <SummaryReview formData={formData} pontuacoes={pontuacoes} />
-            ) : (
-            <CurrentFormComponent
-              data={formData[currentStepData.key as keyof FormData]}
-              onChange={(data: any) => setFormData({ ...formData, [currentStepData.key]: data })}
-              pontuacao={pontuacoes[currentStepData.key as keyof FormData]}
-            />
-            )}
-          </div>
-
-          <div className="fixed bottom-0 left-0 right-0 bg-gray-50 py-4 border-t border-gray-200 flex justify-center">
-            <div className="max-w-4xl w-full px-4 flex flex-col sm:flex-row justify-between gap-4">
-            <button
-              type="button"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="px-6 py-3 bg-gray-300 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 order-1 sm:order-1"
-            >
-              Anterior
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowResetConfirm(true)}
-              className="px-6 py-3 bg-red-300 text-red-700 font-semibold rounded-lg shadow-md hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 order-3 sm:order-2"
-            >
-              Limpar Formulário
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 order-2 sm:order-3"
-            >
-              {currentStep === steps.length - 1
-                ? (loading ? 'Processando...' : 'Classificar Risco')
-                : 'Próximo'
-              }
-            </button>
-            </div>
-          </div>
-        </form>
-        </>
-        )}
-
-        {/* Reset Confirmation Modal */}
-        {showResetConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Confirmar Limpeza
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Tem certeza que deseja limpar todo o formulário? Todas as respostas serão perdidas.
-              </p>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setShowResetConfirm(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={() => {
-                    handleReset();
-                    setShowResetConfirm(false);
-                  }}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                >
-                  Limpar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {(resultado || loading) && (
-          <div className="mt-8">
-            <ResultCard resultado={resultado} loading={loading} onBack={handleReset} />
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <svg className="h-5 w-5 text-red-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-red-800 font-medium">Erro</p>
-            </div>
-            <p className="text-red-700 mt-1">{error}</p>
-            <button
-              onClick={() => setError(null)}
-              className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
-            >
-              Fechar
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    <>
+      <FormWizard
+        currentStep={currentStep}
+        steps={steps}
+        formData={formData}
+        setFormData={setFormData}
+        pontuacoes={pontuacoes}
+        resultado={resultado}
+        loading={loading}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onSubmit={handleSubmit}
+        onResetConfirm={() => setShowResetConfirm(true)}
+        onReset={handleReset}
+        onStepClick={setCurrentStep}
+      />
+      <ResetConfirmModal
+        show={showResetConfirm}
+        onCancel={() => setShowResetConfirm(false)}
+        onConfirm={() => {
+          handleReset();
+          setShowResetConfirm(false);
+        }}
+      />
+      <ErrorAlert
+        error={error}
+        onClose={() => setError(null)}
+      />
+    </>
   );
 }

@@ -328,7 +328,6 @@ export default function AdminPage() {
               <p className="mt-2 text-gray-600">
                 Visualizar resultados das classificações de risco em tempo real
               </p>
-              TESTE
             </div>
             <div className={`text-sm font-medium ${getConnectionStatusColor()}`}>
               {getConnectionStatusText()}
