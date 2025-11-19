@@ -14,10 +14,10 @@ export default function DorForm({ data, onChange, pontuacao }: DorFormProps) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white p-8 rounded-lg shadow-md border-l-4 border-primary">
+      <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-semibold text-gray-800">1. Dor</h3>
+          <h3 className="text-xl font-semibold text-text">1. Dor</h3>
           <button
             type="button"
             className="text-gray-400 hover:text-gray-600"
@@ -28,46 +28,43 @@ export default function DorForm({ data, onChange, pontuacao }: DorFormProps) {
             </svg>
           </button>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-          pontuacao === 3 ? 'bg-red-100 text-red-800' :
-          pontuacao === 2 ? 'bg-yellow-100 text-yellow-800' :
-          pontuacao === 1 ? 'bg-green-100 text-green-800' :
-          'bg-gray-100 text-gray-800'
+        <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+          pontuacao >= 3 ? 'bg-danger text-white' :
+          pontuacao === 2 ? 'bg-warning text-text' :
+          pontuacao === 1 ? 'bg-success text-white' :
+          'bg-secondary text-white'
         }`}>
           {pontuacao} ponto{pontuacao !== 1 ? 's' : ''}
         </span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <label htmlFor="dor-intensidade" className="block text-sm font-medium text-gray-700 mb-2">
-            Intensidade da Dor (0-10)
+          <label htmlFor="dor-intensidade" className="block text-sm font-medium text-text mb-4">
+            Intensidade da Dor
           </label>
-          <div className="flex items-center space-x-4">
-            <input
-              type="range"
-              id="dor-intensidade"
-              min="0"
-              max="10"
-              value={data.intensidade}
-              onChange={(e) => handleChange('intensidade', parseInt(e.target.value))}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              aria-label="Intensidade da dor no slider"
-            />
-            <input
-              type="number"
-              min="0"
-              max="10"
-              value={data.intensidade}
-              onChange={(e) => handleChange('intensidade', Math.min(10, Math.max(0, parseInt(e.target.value) || 0)))}
-              className="w-16 px-2 py-1 border border-gray-300 rounded text-center"
-              aria-label="Intensidade da dor numérica"
-            />
+          <div className="text-center mb-4">
+            <span className="text-4xl font-bold text-text">{data.intensidade}</span>
+            <span className="text-lg text-secondary ml-2">/ 10</span>
           </div>
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>0</span>
-            <span className="font-semibold text-lg">{data.intensidade}</span>
-            <span>10</span>
+          <input
+            type="range"
+            id="dor-intensidade"
+            min="0"
+            max="10"
+            value={data.intensidade}
+            onChange={(e) => handleChange('intensidade', parseInt(e.target.value))}
+            className="w-full h-3 bg-secondary rounded-lg appearance-none cursor-pointer slider-dor"
+            style={{
+              background: `linear-gradient(to right, #28A745 0%, #FFC107 50%, #DC3545 100%)`,
+            }}
+            aria-label="Intensidade da dor no slider"
+          />
+          <div className="flex justify-between text-xs text-secondary mt-2">
+            <span>Nenhuma (0)</span>
+            <span>Leve (3)</span>
+            <span>Moderada (7)</span>
+            <span>Intensa (10)</span>
           </div>
         </div>
 
@@ -78,10 +75,10 @@ export default function DorForm({ data, onChange, pontuacao }: DorFormProps) {
               type="checkbox"
               checked={data.temFebre}
               onChange={(e) => handleChange('temFebre', e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-primary bg-background border-secondary rounded focus:ring-primary"
               aria-describedby="dor-febre-desc"
             />
-            <span id="dor-febre-desc" className="text-sm text-gray-700">
+            <span id="dor-febre-desc" className="text-sm text-text">
               Tem febre (≥ 37.8ºC)
             </span>
           </label>
@@ -94,10 +91,10 @@ export default function DorForm({ data, onChange, pontuacao }: DorFormProps) {
               type="checkbox"
               checked={data.sintomasGraves}
               onChange={(e) => handleChange('sintomasGraves', e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-primary bg-background border-secondary rounded focus:ring-primary"
               aria-describedby="dor-sintomas-desc"
             />
-            <span id="dor-sintomas-desc" className="text-sm text-gray-700">
+            <span id="dor-sintomas-desc" className="text-sm text-text">
               Sintomas graves (desmaio, falta de ar, sangramentos)
             </span>
           </label>

@@ -17,11 +17,11 @@ export default function RespiratorioForm({ data, onChange, pontuacao }: Respirat
     <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-cyan-500">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">3. Sintomas Respiratórios</h3>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-          pontuacao === 3 ? 'bg-red-100 text-red-800' :
-          pontuacao === 2 ? 'bg-yellow-100 text-yellow-800' :
-          pontuacao === 1 ? 'bg-green-100 text-green-800' :
-          'bg-gray-100 text-gray-800'
+        <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+          pontuacao >= 3 ? 'bg-danger text-white' :
+          pontuacao === 2 ? 'bg-warning text-text' :
+          pontuacao === 1 ? 'bg-success text-white' :
+          'bg-secondary text-white'
         }`}>
           {pontuacao} ponto{pontuacao !== 1 ? 's' : ''}
         </span>
