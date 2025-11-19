@@ -1,5 +1,5 @@
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import AdminPage from '../page';
+import AdminPage from '@/app/admin/page';
 
 // Mock fetch
 global.fetch = jest.fn();

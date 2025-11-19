@@ -8,7 +8,7 @@ import {
   calcularPontuacaoPrenatal,
   calcularPontuacaoCrianca,
   calcularClassificacao
-} from './classification';
+} from '@/lib/classification';
 import {
   DorData,
   ExamesData,
@@ -16,7 +16,7 @@ import {
   EstomagoData,
   PrenatalData,
   CriancaData
-} from './types';
+} from '@/lib/types';
 
 describe('Triagem de Risco - Testes Unitários', () => {
 
